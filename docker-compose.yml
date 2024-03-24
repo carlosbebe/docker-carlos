@@ -1,0 +1,12 @@
+version: "2.24.6"
+
+services:
+  db:
+    image: image_name
+    hostname: db
+    container_name: db
+    environment:
+
+  slurmdbd:
+    image: slurm-docker-cluster
+    build:
