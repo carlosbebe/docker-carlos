@@ -1,12 +1,100 @@
 version: "2.24.6"
 
-services:
-  db:
-    image: image_name
-    hostname: db
-    container_name: db
-    environment:
 
+services:
+  mysql:
+    image: mariadb:10.10
+    hostname: mysql
+    container_name: mysql
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: slurm_acct_db
+      MYSQL_USER: slurm
+      MYSQL_PASSWORD: password
+    volumes:
+      - var_lib_mysql:/var/lib/mysql
+ 
   slurmdbd:
-    image: slurm-docker-cluster
+    image: docker-carlos:rocky8-slurm
     build:
+      context: .
+    command: ["slurmdbd"]
+    container_name: slurmdbd
+    hostname: slurmdbd
+    volumes:
+      - etc_munge:/etc/munge
+      - etc_slurm:/etc/slurm
+      - var_log_slurm:/var/log/slurm
+    expose:
+      - "6819"
+    depends_on:
+      - mysql
+
+  slurmctld:
+    image: docker-carlos:rocky8-slurm
+    command: ["slurmctld"]
+    container_name: slurmctld
+    hostname: slurmctld
+    volumes:
+      - etc_munge:/etc/munge
+      - etc_slurm:/etc/slurm
+      - slurm_jobdir:/data
+      - var_log_slurm:/var/log/slurm
+    expose:
+      - "6817"
+    depends_on:
+      - "slurmdbd"
+    #networks:
+    #  custom_net:
+     #   ipv4_address: 192.168.0.20
+
+  node01:
+    image: docker-carlos:rocky8-slurm
+    command: ["slurmd"]
+    hostname: node01
+    container_name: node01
+    volumes:
+      - etc_munge:/etc/munge
+      - etc_slurm:/etc/slurm
+      - slurm_jobdir:/data
+      - var_log_slurm:/var/log/slurm
+    expose:
+      - "6818"
+    depends_on:
+      - "slurmctld"
+    #networks:
+      #custom_net:
+        #ipv4_address: 192.168.0.21
+
+  node02:
+    image: docker-carlos:rocky8-slurm
+    command: ["slurmd"]
+    hostname: node02
+    container_name: node02
+    volumes:
+      - etc_munge:/etc/munge
+      - etc_slurm:/etc/slurm
+      - slurm_jobdir:/data
+      - var_log_slurm:/var/log/slurm
+    expose:
+      - "6818"
+    depends_on:
+      - "slurmctld"
+    #networks:
+     # custom_net:
+       # ipv4_address: 192.168.0.22
+
+volumes:
+  etc_munge:
+  etc_slurm:
+  slurm_jobdir:
+  var_lib_mysql:
+  var_log_slurm:
+
+#networks:
+#  custom_net:
+#    driver: bridge
+#    ipam:
+#      config:
+#        - subnet: 192.168.0.0/16
+#          gateway: 192.168.0.1
