@@ -1,18 +1,23 @@
-# Slurm Docker Cluster
+# Slurm Docker Project
 
-This is a multi-container Slurm cluster using docker-compose.  The compose file
-creates named volumes for persistent storage of MySQL data files as well as
-Slurm state and log directories.
+This project presents a slurm cluster using docker containers.
 
-## Containers and Volumes
+Docker compose allows us to create an environment from docker images previously built. Docker Composer will create containers as well an internal network to communicate the components.
+
+## Slurm
+
+SLURM stands for Simple Linux Utility for Resource Management. It is a open-source cluster management and batch scheduler for linux hpc clusters.
+
+## Cluster Arquitecture
+
 
 The compose file will run the following containers:
 
 * mysql
-* slurmdbd
-* slurmctld
-* c1 (slurmd)
-* c2 (slurmd)
+* slurmdbd    
+* slurmctld   
+* c1 (slurmd) 
+* c2 (slurmd) 
 
 The compose file will create the following named volumes:
 
